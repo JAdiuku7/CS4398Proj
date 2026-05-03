@@ -1,0 +1,255 @@
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="mb-1">Dashboard</h2>
+        <p class="text-muted mb-0">Track workouts, meals, and goals in one place.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="/workouts" class="btn btn-outline-primary">Workouts</a>
+        <a href="/meals" class="btn btn-outline-success">Meals</a>
+        <a href="/goals" class="btn btn-outline-warning">Goals</a>
+        <a href="/analytics" class="btn btn-outline-secondary">Analytics</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <h6 class="text-muted">Total Workouts</h6>
+            <h3 class="mb-0">{{ total_workouts }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <h6 class="text-muted">Unique Exercises</h6>
+            <h3 class="mb-0">{{ unique_exercises }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <h6 class="text-muted">Goal Status</h6>
+            <h3 class="mb-0">
+                {{ goal_info.status if goal_info and goal_info.status else "No goal set" }}
+            </h3>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 rounded-3 p-4 h-100">
+            <h5 class="mb-3">Add Workout</h5>
+            <form method="POST" action="/add" class="row g-2">
+                <div class="col-12">
+                    <input name="exercise" class="form-control" placeholder="Exercise" required>
+                </div>
+                <div class="col-md-6">
+                    <input name="category" class="form-control" placeholder="Category">
+                </div>
+                <div class="col-md-2">
+                    <input name="sets" type="number" class="form-control" placeholder="Sets" required>
+                </div>
+                <div class="col-md-2">
+                    <input name="reps" type="number" class="form-control" placeholder="Reps" required>
+                </div>
+                <div class="col-md-2">
+                    <input name="weight" type="number" step="0.1" class="form-control" placeholder="Weight" required>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary w-100">Save Workout</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 rounded-3 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <h5 class="mb-0">Progress Chart</h5>
+                <select id="exerciseSelect" class="form-select form-select-sm" style="max-width: 220px;"></select>
+            </div>
+            <div style="min-height: 320px;">
+                <canvas id="progressChart"></canvas>
+            </div>
+            <p id="chartEmptyState" class="text-muted mt-3 mb-0 d-none">
+                No workout data yet. Add a workout to see your progress chart.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 rounded-3 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Recent Workouts</h5>
+                <a href="/workouts" class="small text-decoration-none">View all</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Exercise</th>
+                            <th>Weight</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for w in workouts[:5] %}
+                        <tr>
+                            <td>{{ w[2] }}</td>
+                            <td>{{ w[6] }}</td>
+                            <td>{{ w[7] }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-muted">No workouts yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 rounded-3 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Recent Meals</h5>
+                <a href="/meals" class="small text-decoration-none">View all</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Meal</th>
+                            <th>Calories</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in meals[:5] %}
+                        <tr>
+                            <td>{{ m[2] }}</td>
+                            <td>{{ m[3] }}</td>
+                            <td>{{ m[7] }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-muted">No meals logged yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 rounded-3 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Recent Goals</h5>
+                <a href="/goals" class="small text-decoration-none">View all</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Target</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for g in goals[:5] %}
+                        <tr>
+                            <td>{{ g[2] }}</td>
+                            <td>{{ g[3] }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="2" class="text-muted">No goals set yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chartData = {
+        {
+            chart_data | safe
+        }
+    };
+    const select = document.getElementById("exerciseSelect");
+    const canvas = document.getElementById("progressChart");
+    const emptyState = document.getElementById("chartEmptyState");
+
+    let chart = null;
+
+    function renderChart(exercise) {
+        const data = chartData[exercise];
+
+        if (!data || !data.dates || !data.weights || data.dates.length === 0) {
+            if (chart) {
+                chart.destroy();
+                chart = null;
+            }
+            canvas.classList.add("d-none");
+            emptyState.classList.remove("d-none");
+            return;
+        }
+
+        emptyState.classList.add("d-none");
+        canvas.classList.remove("d-none");
+
+        if (chart) {
+            chart.destroy();
+        }
+
+        chart = new Chart(canvas, {
+            type: "line",
+            data: {
+                labels: data.dates,
+                datasets: [{
+                    label: exercise,
+                    data: data.weights,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    const exercises = Object.keys(chartData);
+
+    if (exercises.length > 0) {
+        exercises.forEach((ex, index) => {
+            const option = document.createElement("option");
+            option.value = ex;
+            option.textContent = ex;
+            select.appendChild(option);
+            if (index === 0) {
+                select.value = ex;
+            }
+        });
+
+        renderChart(select.value);
+
+        select.addEventListener("change", () => {
+            renderChart(select.value);
+        });
+    } else {
+        canvas.classList.add("d-none");
+        emptyState.classList.remove("d-none");
+    }
+</script>
+{% endblock %}

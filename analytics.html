@@ -1,0 +1,51 @@
+{% extends "base.html" %} {% block title %}Analytics{% endblock %} {% block content %}
+
+<h2>Analytics</h2>
+
+<select id="exerciseSelect" class="form-select mb-3"></select>
+<canvas id="chart"></canvas>
+
+<script>
+    const exerciseData = {
+        {
+            exercise_data | safe
+        }
+    };
+    const select = document.getElementById("exerciseSelect");
+
+    Object.keys(exerciseData).forEach(ex => {
+        const option = document.createElement("option");
+        option.value = ex;
+        option.textContent = ex;
+        select.appendChild(option);
+    });
+
+    let chart;
+
+    function renderChart(exercise) {
+        const data = exerciseData[exercise];
+
+        if (chart) chart.destroy();
+
+        chart = new Chart(document.getElementById("chart"), {
+            type: "line",
+            data: {
+                labels: data.dates,
+                datasets: [{
+                    label: exercise,
+                    data: data.weights
+                }]
+            }
+        });
+    }
+
+    if (select.options.length > 0) {
+        renderChart(select.value);
+    }
+
+    select.addEventListener("change", () => {
+        renderChart(select.value);
+    });
+</script>
+
+{% endblock %}

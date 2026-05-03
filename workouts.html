@@ -1,0 +1,82 @@
+{% extends "base.html" %} {% block title %}Workouts{% endblock %} {% block content %}
+
+<h2>Workout Manager</h2>
+
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Exercise</th>
+            <th>Sets</th>
+            <th>Reps</th>
+            <th>Weight</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for w in workouts %}
+        <tr>
+            <td>{{ w[2] }}</td>
+            <td>{{ w[4] }}</td>
+            <td>{{ w[5] }}</td>
+            <td>{{ w[6] }}</td>
+            <td>{{ w[7] }}</td>
+            <td>
+                <a href="/delete/{{ w[0] }}" class="btn btn-danger btn-sm">
+                    Delete
+                
+                </a>
+                <button class="btn btn-warning btn-sm" onclick="openEditModal('{{ w[0] }}','{{ w[2] }}','{{ w[4] }}','{{ w[5] }}','{{ w[6] }}')">
+        Edit
+    </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="POST" action="/update">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Workout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden" name="id" id="editId">
+
+                    <input name="exercise" id="editExercise" class="form-control mb-2" placeholder="Exercise">
+                    <input name="sets" id="editSets" class="form-control mb-2" placeholder="Sets">
+                    <input name="reps" id="editReps" class="form-control mb-2" placeholder="Reps">
+                    <input name="weight" id="editWeight" class="form-control mb-2" placeholder="Weight">
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function openEditModal(id, exercise, sets, reps, weight) {
+        document.getElementById("editId").value = id;
+        document.getElementById("editExercise").value = exercise;
+        document.getElementById("editSets").value = sets;
+        document.getElementById("editReps").value = reps;
+        document.getElementById("editWeight").value = weight;
+
+        new bootstrap.Modal(document.getElementById("editModal")).show();
+    }
+</script>
+
+{% endblock %}
