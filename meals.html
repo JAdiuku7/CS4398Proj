@@ -1,0 +1,100 @@
+{% extends "base.html" %} {% block title %}Meals{% endblock %} {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="mb-1">Meals</h2>
+        <p class="text-muted mb-0">Log meals and review your nutrition data.</p>
+    </div>
+    <a href="/dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <h6 class="text-muted">Calories Today</h6>
+            <h3 class="mb-0">{{ summary.calories if summary else 0 }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <h6 class="text-muted">Protein</h6>
+            <h3 class="mb-0">{{ summary.protein if summary else 0 }}g</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <h6 class="text-muted">Carbs</h6>
+            <h3 class="mb-0">{{ summary.carbs if summary else 0 }}g</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <h6 class="text-muted">Fat</h6>
+            <h3 class="mb-0">{{ summary.fat if summary else 0 }}g</h3>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-3 p-4 mb-4">
+    <h5 class="mb-3">Add Meal</h5>
+    <form method="POST" action="/meals" class="row g-2">
+        <div class="col-md-3">
+            <input name="name" class="form-control" placeholder="Meal name" required>
+        </div>
+        <div class="col-md-2">
+            <input name="calories" type="number" class="form-control" placeholder="Calories" required>
+        </div>
+        <div class="col-md-2">
+            <input name="protein" type="number" class="form-control" placeholder="Protein" required>
+        </div>
+        <div class="col-md-2">
+            <input name="carbs" type="number" class="form-control" placeholder="Carbs" required>
+        </div>
+        <div class="col-md-2">
+            <input name="fat" type="number" class="form-control" placeholder="Fat" required>
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-primary w-100">+</button>
+        </div>
+    </form>
+</div>
+
+<div class="card shadow-sm border-0 rounded-3 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Meal History</h5>
+        <span class="text-muted small">{{ meals|length }} entries</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Meal</th>
+                    <th>Calories</th>
+                    <th>Protein</th>
+                    <th>Carbs</th>
+                    <th>Fat</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in meals %}
+                <tr>
+                    <td>{{ m[0] }}</td>
+                    <td>{{ m[2] }}</td>
+                    <td>{{ m[3] }}</td>
+                    <td>{{ m[4] }}g</td>
+                    <td>{{ m[5] }}g</td>
+                    <td>{{ m[6] }}g</td>
+                    <td>{{ m[7] }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-muted">No meals logged yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

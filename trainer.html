@@ -1,0 +1,115 @@
+{% extends "base.html" %} {% block title %}Trainer Panel{% endblock %} {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="mb-1">Trainer Panel</h2>
+        <p class="text-muted mb-0">Create plans and monitor assigned users.</p>
+    </div>
+    <a href="/dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <h6 class="text-muted">Assigned Users</h6>
+            <h3 class="mb-0">{{ users|length }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <h6 class="text-muted">Plans Assigned</h6>
+            <h3 class="mb-0">{{ assigned_plans|length }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <h6 class="text-muted">Trainer Status</h6>
+            <h3 class="mb-0">Active</h3>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-3 p-4 mb-4">
+    <h5 class="mb-3">Assign Plan</h5>
+    <form method="POST" action="/trainer" class="row g-2">
+        <div class="col-md-4">
+            <select name="user_id" class="form-select" required>
+                <option value="">Select user</option>
+                {% for u in users %}
+                <option value="{{ u[0] }}">{{ u[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-5">
+            <input name="plan_name" class="form-control" placeholder="Plan name" required>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-primary w-100">Assign Plan</button>
+        </div>
+    </form>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 rounded-3 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Users</h5>
+                <span class="text-muted small">{{ users|length }} users</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td>{{ u[0] }}</td>
+                            <td>{{ u[1] }}</td>
+                            <td>
+                                {% if u[4] == 1 %}
+                                <span class="badge bg-success">Active</span> {% else %}
+                                <span class="badge bg-danger">Disabled</span> {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-muted">No users found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 rounded-3 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Assigned Plans</h5>
+                <span class="text-muted small">{{ assigned_plans|length }} assignments</span>
+            </div>
+
+            {% if assigned_plans %}
+            <div class="list-group">
+                {% for p in assigned_plans %}
+                <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <div class="fw-semibold">{{ p[0] }}</div>
+                        <div class="text-muted small">Plan: {{ p[2] }}</div>
+                    </div>
+                    <span class="badge bg-secondary">{{ p[3] }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">No plans assigned yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
