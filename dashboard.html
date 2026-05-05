@@ -14,23 +14,23 @@
 
 <div class="row g-3 mb-4">
     <div class="col-md-4">
-        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
-            <h6 class="text-muted">Total Workouts</h6>
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100 bg-primary text-white">
+            <h6>Total Workouts</h6>
             <h3 class="mb-0">{{ total_workouts }}</h3>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
-            <h6 class="text-muted">Unique Exercises</h6>
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100 bg-success text-white">
+            <h6>Unique Exercises</h6>
             <h3 class="mb-0">{{ unique_exercises }}</h3>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
-            <h6 class="text-muted">Goal Status</h6>
-            <h3 class="mb-0">
-                {{ goal_info.status if goal_info and goal_info.status else "No goal set" }}
-            </h3>
+        <div class="card shadow-sm border-0 rounded-3 p-3 h-100 bg-warning text-dark">
+            <h6>Goal Status</h6>
+            <h5 class="mb-0">
+                {{ summary.status if summary and summary.status else "No goal set" }}
+            </h5>
         </div>
     </div>
 </div>
@@ -75,6 +75,15 @@
                 No workout data yet. Add a workout to see your progress chart.
             </p>
         </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-3 p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Weight Progress</h5>
+    </div>
+    <div style="min-height: 300px;">
+        <canvas id="weightChart"></canvas>
     </div>
 </div>
 
@@ -165,8 +174,8 @@
                     <tbody>
                         {% for g in goals[:5] %}
                         <tr>
-                            <td>{{ g[2] }}</td>
-                            <td>{{ g[3] }}</td>
+                            <td>{{ g[3] if g|length > 3 else g[2] }}</td>
+                            <td>{{ g[4] if g|length > 4 else g[3] }}</td>
                         </tr>
                         {% else %}
                         <tr>
@@ -180,76 +189,58 @@
     </div>
 </div>
 
-<script>
-    const chartData = {
+<script id="weight-data" type="application/json">
+    {
         {
-            chart_data | safe
+            weight_chart | tojson
         }
-    };
-    const select = document.getElementById("exerciseSelect");
-    const canvas = document.getElementById("progressChart");
-    const emptyState = document.getElementById("chartEmptyState");
+    }
+</script>
+<script id="goal-weight-data" type="application/json">
+    {
+        {
+            summary.goal_weight | tojson
+        }
+    }
+</script>
 
-    let chart = null;
+<script>
+    const weightData = JSON.parse(document.getElementById("weight-data").textContent);
+    const goalWeight = JSON.parse(document.getElementById("goal-weight-data").textContent);
+    const ctx = document.getElementById("weightChart");
 
-    function renderChart(exercise) {
-        const data = chartData[exercise];
+    console.log("weightData:", weightData);
 
-        if (!data || !data.dates || !data.weights || data.dates.length === 0) {
-            if (chart) {
-                chart.destroy();
-                chart = null;
-            }
-            canvas.classList.add("d-none");
-            emptyState.classList.remove("d-none");
-            return;
+    if (weightData && weightData.dates && weightData.dates.length > 0) {
+        const datasets = [{
+            label: "Current Weight",
+            data: weightData.weights,
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
+        }];
+
+        if (goalWeight !== null) {
+            datasets.push({
+                label: "Goal Weight",
+                data: weightData.weights.map(() => goalWeight),
+                borderDash: [5, 5],
+                borderWidth: 2,
+                fill: false
+            });
         }
 
-        emptyState.classList.add("d-none");
-        canvas.classList.remove("d-none");
-
-        if (chart) {
-            chart.destroy();
-        }
-
-        chart = new Chart(canvas, {
+        new Chart(ctx, {
             type: "line",
             data: {
-                labels: data.dates,
-                datasets: [{
-                    label: exercise,
-                    data: data.weights,
-                    tension: 0.3
-                }]
+                labels: weightData.dates,
+                datasets: datasets
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false
             }
         });
-    }
-
-    const exercises = Object.keys(chartData);
-
-    if (exercises.length > 0) {
-        exercises.forEach((ex, index) => {
-            const option = document.createElement("option");
-            option.value = ex;
-            option.textContent = ex;
-            select.appendChild(option);
-            if (index === 0) {
-                select.value = ex;
-            }
-        });
-
-        renderChart(select.value);
-
-        select.addEventListener("change", () => {
-            renderChart(select.value);
-        });
-    } else {
-        canvas.classList.add("d-none");
-        emptyState.classList.remove("d-none");
     }
 </script>
 {% endblock %}
