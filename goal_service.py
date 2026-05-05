@@ -68,33 +68,26 @@ def goal_summary(user_id):
 
     if error:
         return {
+            "current": None,
+            "target": None,
             "current_weight": None,
             "goal_weight": None,
             "status": error
         }
 
-    # progress already gives current_weight and target_weight as numeric values
-    current_weight = progress["current_weight"]
-    target_weight = progress["target_weight"]
-
-    try:
-        current_weight = float(current_weight)
-        target_weight = float(target_weight)
-    except (TypeError, ValueError):
-        return {
-            "current_weight": current_weight,
-            "goal_weight": target_weight,
-            "status": "Invalid goal data"
-        }
+    current_weight = float(progress["current_weight"])
+    target_weight = float(progress["target_weight"])
 
     diff = current_weight - target_weight
 
     if diff <= 0:
         status = "Goal reached or below target"
     else:
-        status = f"{round(diff, 1)} away from target"
+        status = f"{round(diff, 1)} away from goal"
 
     return {
+        "current": current_weight,
+        "target": target_weight,
         "current_weight": current_weight,
         "goal_weight": target_weight,
         "status": status
